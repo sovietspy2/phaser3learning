@@ -44,6 +44,8 @@
         var scoreText;
         var playerHealthText = 100;
         var dragonAttack = false;
+        var gameOver = false;
+        
 
         var game = new Phaser.Game(config);
 
@@ -95,7 +97,7 @@
             this.anims.create({
                 key: 'dragon-attack',
                 frames: this.anims.generateFrameNumbers('dragon-attack', { start: 0, end: 10 }),
-                frameRate: 10,
+                frameRate: 15,
                 repeat: 0
             });
 
@@ -133,7 +135,7 @@
                 key: 'dragon-fly',
                 frames: this.anims.generateFrameNumbers('dragon', { start: 0, end: 5 }),
                 frameRate: 10,
-                repeat: -1
+                repeat: 0
             });
 
 
@@ -150,7 +152,7 @@
             scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
             playerHealthText = this.add.text(735, 16, '100', { fontSize: '32px', fill: '#000' });
 
-
+            
 
             bombs = this.physics.add.group();
 
@@ -171,6 +173,8 @@
             dragon.on('animationcomplete', () => {
                 dragon.anims.play('dragon-fly');
             });
+
+            
         }
 
 
@@ -179,21 +183,25 @@
             if (cursors.left.isDown) {
                 player.setVelocityX(-160);
                 player.anims.play('left', true);
+                console.log("playerX: "+player.x+"PlayerY: "+player.y );
 
             }
             else if (cursors.right.isDown) {
                 player.setVelocityX(160);
-
+                
                 player.anims.play('right', true);
+                console.log("playerX: "+player.x+"PlayerY: "+player.y );
             }
             else {
                 player.setVelocityX(0);
 
                 player.anims.play('turn');
+                
             }
 
             if (cursors.up.isDown && player.body.touching.down) {
                 player.setVelocityY(-330);
+                console.log("playerX: "+player.x+"PlayerY: "+player.y );
             } else {
 
             }
@@ -205,6 +213,41 @@
             } else{
                 //dragon.anims.play('dragon-fly', true);
             }
+            
+            let distance = Math.sqrt(Math.pow((Math.abs(dragon.x - player.x)),2) + Math.pow(Math.abs(dragon.y - player.y), 2));
+
+
+            if (distance<400) {
+                if (player.x < dragon.x) {
+                    console.log("FLIP FALSE");
+                    dragon.setFlipX(false);
+                } else if (player.x > dragon.x) {
+                    dragon.setFlipX(true);
+                    console.log("FLIP TRUE")
+                }
+            }
+
+            if (distance<100) {
+                playerHealth -= 10;
+                playerHealthText.setText(playerHealth);
+                dragonAttack=true;
+    
+                console.log(distance);
+            }
+
+            if (playerHealth<0) {
+                this.physics.pause();
+                player.setTint(0xff0000);
+                //player.anims.play(turn);
+                
+                gameOver = true;
+            }
+
+            if (gameOver) {
+                this.add.text(player.x-93, player.y-40, 'GAME OVER', { fontSize: '32px', fill: 'white' });
+                return;
+            }
+            
 
 
         }
@@ -233,19 +276,17 @@
 
         function meetsDragon(player, dragon) {
             dragon.setVelocityY(-100);
-            playerHealth -= 10;
-            playerHealthText.setText(playerHealth);
-            dragonAttack=true;
-            //dragon.anims.play('dragon-attack', true); ///
-            //dragon.anims.remove('dragon-attack');
             console.log("huh i met a dragon")
-            //dragon.anims.play('dragon-fly', true);
+            dragonAttack = true;
+            //attack Radius calculation
+            
+
         }
 
         function hitBomb(player, bomb) {
             this.physics.pause();
             player.setTin(0xff0000);
-            //player.anims.play(turn);
+            player.anims.play(turn);
 
             gameOver = true;
         }
