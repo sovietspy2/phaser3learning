@@ -180,6 +180,12 @@
 
 
         function update() {
+
+            if (gameOver) {
+                this.add.text(player.x-93, player.y-40, 'GAME OVER', { fontSize: '32px', fill: 'white' });
+                return;
+            }
+
             if (cursors.left.isDown) {
                 player.setVelocityX(-160);
                 player.anims.play('left', true);
@@ -216,7 +222,6 @@
             
             let distance = Math.sqrt(Math.pow((Math.abs(dragon.x - player.x)),2) + Math.pow(Math.abs(dragon.y - player.y), 2));
 
-
             if (distance<400) {
                 if (player.x < dragon.x) {
                     console.log("FLIP FALSE");
@@ -243,10 +248,7 @@
                 gameOver = true;
             }
 
-            if (gameOver) {
-                this.add.text(player.x-93, player.y-40, 'GAME OVER', { fontSize: '32px', fill: 'white' });
-                return;
-            }
+            
             
 
 
